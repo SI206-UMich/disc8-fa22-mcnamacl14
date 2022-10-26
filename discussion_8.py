@@ -11,20 +11,20 @@ import unittest
 # HINT: You will have to add https://en.wikipedia.org to the URL retrieved using BeautifulSoup
 def getLink(soup):
     url_base = "https://en.wikipedia.org"
-    tag = soup.find('a', class_='mw-redirect')
-    info = tag.get('href')
-    return url_base + info
+    oly = soup.find('a', title = "List of American universities with Olympic medals")
+    link = oly.get('href')
+    return url_base + link
 
 # Task 3: Get the details from the box titled "College/school founding". Get all the college/school names and the year they were
 # founded and organize the same into key-value pairs.
 def getAdmissionsInfo2019(soup):
     school_founding = {}
     big_box = soup.find('table' , class_="toccolours")
-    lines = big_box.findall("tr")
-    for line in lines:
-        both = line.findall('td')
-        school_name = both[0]
-        year_founded = both[1]
+    lines = big_box.find_all("tr")
+    for line in lines[1:]:
+        both = line.find_all('td')
+        school_name = both[0].text.strip()
+        year_founded = both[1].text.strip()
         school_founding[school_name] = year_founded
     return school_founding
 
@@ -36,7 +36,7 @@ def main():
 
     url = "https://en.wikipedia.org/wiki/University_of_Michigan"
     r = requests.get(url)
-    soup = BeautifulSoup(r.content, 'html.parser')
+    soup = BeautifulSoup(r.text, 'html.parser')
 
     #Call the functions getLink(soup) and getAdmissionsInfo2019(soup) on your soup object.
     getLink(soup)
@@ -50,7 +50,9 @@ class TestAllMethods(unittest.TestCase):
         self.assertEqual(getLink(self.soup), 'https://en.wikipedia.org/wiki/List_of_American_universities_with_Olympic_medals')
 
     def test_admissions_info(self):
-        self.assertEqual(getAdmissionsInfo2019(self.soup), {'Engineering': '1854', 
+        self.assertEqual(getAdmissionsInfo2019(self.soup), {'Literature, Science, andthe Arts': '1841',
+                                                            'Medicine':'1850',
+                                                            'Engineering': '1854', 
                                                             'Law': '1859',
                                                             'Dentistry': '1875', 
                                                             'Pharmacy': '1876', 
